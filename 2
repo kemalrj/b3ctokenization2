@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3C Tokenizasyon Platformu</title>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background: #0f0520; }
+        #root { width: 100%; min-height: 100vh; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module" data-presets="react,typescript">
+        import React, { useState, useEffect, useRef } from "https://esm.sh/react@18";
+        import { createRoot } from "https://esm.sh/react-dom@18/client";
+        import {
+            Menu, X, ChevronRight, ChevronDown, ChevronUp, ArrowRight, Play, Shield,
+            Zap, Globe, Lock, BarChart2, Users, CheckCircle, TrendingUp, DollarSign,
+            Layers, MapPin, Filter, Star, Building2, Check, Loader2, AlertCircle,
+            Coins, Upload, FileText, ShieldCheck, Mail, Phone, Send, Clock, LineChart
+        } from "https://esm.sh/lucide-react";
+        import {
+            PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+            Tooltip, AreaChart, Area, ResponsiveContainer, Legend
+        } from "https://esm.sh/recharts";
+
+        /* ==========================================================================
+           1. GLOBAL STYLES (CSS INJECTION)
+           ========================================================================== */
+        const GlobalStyles = () => (
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+              :root {
+                --violet: #7c3aed;
+                --violet-light: #8b5cf6;
+                --violet-dark: #5b21b6;
+                --purple: #a855f7;
+                --fuchsia: #c026d3;
+                --indigo: #4f46e5;
+                --bg-dark: #0f0520;
+                --bg-dark2: #1a0533;
+                --bg-purple: #2d1065;
+                --bg-light: #faf5ff;
+                --bg-light2: #f3e8ff;
+                --bg-white: #ffffff;
+                --text-dark: #1a0533;
+                --text-body: #4c1d95;
+                --text-muted-dark: #7c3aed;
+                --text-light: #f5f3ff;
+                --text-secondary-light: #ddd6fe;
+                --text-muted-light: #a78bfa;
+                --gold: #f59e0b;
+                --gold-light: #fbbf24;
+                --emerald: #10b981;
+                --cyan: #06b6d4;
+                --border-dark: rgba(167, 139, 250, 0.15);
+                --border-light: rgba(109, 40, 217, 0.12);
+                --border-accent: rgba(124, 58, 237, 0.4);
+              }
+
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              html { scroll-behavior: smooth; }
+              body {
+                font-family: 'Inter', sans-serif;
+                -webkit-font-smoothing: antialiased;
+                overflow-x: hidden;
+                background: var(--bg-white);
+                color: var(--text-dark);
+              }
+              h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+
+              .section-dark {
+                background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark2) 100%);
+                color: var(--text-light);
+              }
+              .section-dark-purple {
+                background: linear-gradient(135deg, var(--bg-dark2) 0%, var(--bg-purple) 100%);
+                color: var(--text-light);
+              }
+              .section-light {
+                background: linear-gradient(180deg, #ffffff 0%, var(--bg-light) 100%);
+                color: var(--text-dark);
+              }
+              .section-light-purple {
+                background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-light2) 100%);
+                color: var(--text-dark);
+              }
+              .section-white {
+                background: #ffffff;
+                color: var(--text-dark);
+              }
+              .gradient-text {
+                background: linear-gradient(135deg, var(--violet-light) 0%, var(--purple) 50%, var(--fuchsia) 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+              }
+              .gradient-text-dark {
+                background: linear-gradient(135deg, var(--violet-dark) 0%, var(--violet) 50%, var(--purple) 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+              }
+              .glass-card-dark {
+                background: rgba(255,255,255,0.04);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-dark);
+                border-radius: 20px;
+                transition: all 0.3s ease;
+              }
+              .glass-card-dark:hover {
+                background: rgba(255,255,255,0.07);
+                border-color: rgba(167,139,250,0.3);
+                transform: translateY(-4px);
+                box-shadow: 0 20px 60px rgba(124,58,237,0.2);
+              }
+              .glass-card-light {
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-light);
+                border-radius: 20px;
+                box-shadow: 0 4px 24px rgba(109,40,217,0.06);
+                transition: all 0.3s ease;
+              }
+              .glass-card-light:hover {
+                background: rgba(255,255,255,0.98);
+                border-color: rgba(124,58,237,0.25);
+                transform: translateY(-4px);
+                box-shadow: 0 16px 48px rgba(124,58,237,0.12);
+              }
+              .btn-primary {
+                background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+                color: white;
+                border: none;
+                padding: 13px 28px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 15px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+              }
+              .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 40px rgba(124,58,237,0.5);
+                background: linear-gradient(135deg, var(--violet-light), var(--violet));
+              }
+              .btn-secondary-dark {
+                background: transparent;
+                color: var(--text-light);
+                border: 1px solid rgba(167,139,250,0.3);
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+              }
+              .btn-secondary-dark:hover {
+                border-color: rgba(167,139,250,0.6);
+                background: rgba(124,58,237,0.15);
+                transform: translateY(-2px);
+              }
+              .btn-secondary-light {
+                background: transparent;
+                color: var(--violet);
+                border: 1.5px solid var(--violet);
+                padding: 12px 24px;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+              }
+              .btn-secondary-light:hover {
+                background: var(--violet);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+              }
+              .btn-gold {
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: #000;
+                border: none;
+                padding: 14px 32px;
+                border-radius: 12px;
+                font-weight: 700;
+                font-size: 15px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+              }
+              .btn-gold:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 40px rgba(245,158,11,0.4);
+              }
+              .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 5px 14px;
+                border-radius: 100px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+              }
+              .badge-purple-dark { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #c4b5fd; }
+              .badge-purple-light { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); color: var(--violet); }
+              .badge-gold-dark { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+              .badge-gold-light { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: #d97706; }
+              .badge-green { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+              .badge-green-light { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #059669; }
+              .input-dark {
+                background: rgba(255,255,255,0.05);
+                border: 1px solid rgba(167,139,250,0.2);
+                border-radius: 10px;
+                color: var(--text-light);
+                padding: 12px 16px;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                outline: none;
+                width: 100%;
+              }
+              .input-dark:focus { border-color: rgba(139,92,246,0.5); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+              .progress-bar-light { height: 6px; background: rgba(109,40,217,0.1); border-radius: 3px; overflow: hidden; }
+              .progress-fill-light { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--violet), var(--purple)); }
+              .section-padding { padding: 100px 0; }
+              .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+              .section-header { text-align: center; margin-bottom: 64px; }
+
+              .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+              .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+              .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+              @media (max-width: 1024px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+              @media (max-width: 768px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } .grid-2 { grid-template-columns: 1fr; } }
+              @media (max-width: 480px) { .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+              .animate-float { animation: float 6s ease-in-out infinite; }
+              .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+              .animate-slide-up { animation: slide-up 0.6s ease forwards; }
+
+              @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-16px); } }
+              @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+              @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+              @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+              @keyframes pulse-ring { 0% { transform: translate(-50%,-50%) scale(1); opacity: 0.6; } 100% { transform: translate(-50%,-50%) scale(2); opacity: 0; } }
+              @keyframes scroll-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+              .grid-bg-dark {
+                background-image: linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+                background-size: 50px 50px;
+              }
+              .grid-bg-light {
+                background-image: linear-gradient(rgba(109,40,217,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(109,40,217,0.05) 1px, transparent 1px);
+                background-size: 40px 40px;
+              }
+              .divider-light { height: 1px; background: linear-gradient(90deg, transparent, rgba(109,40,217,0.12), transparent); }
+              input[type="range"] {
+                -webkit-appearance: none; height: 6px; border-radius: 3px;
+                background: rgba(167,139,250,0.2); outline: none; cursor: pointer;
+              }
+              input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+                background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+                cursor: pointer; box-shadow: 0 4px 12px rgba(124,58,237,0.4); transition: transform 0.2s;
+              }
+              input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+              .faq-item {
+                border: 1px solid rgba(109,40,217,0.12);
+                border-radius: 16px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                background: white;
+              }
+              .faq-item:hover { border-color: rgba(124,58,237,0.25); box-shadow: 0 4px 20px rgba(124,58,237,0.08); }
+              .faq-item.active { border-color: rgba(124,58,237,0.35); box-shadow: 0 8px 32px rgba(124,58,237,0.12); }
+              .faq-question { padding: 20px 24px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+              .faq-answer { padding: 0 24px 20px; color: #6b7280; font-size: 15px; line-height: 1.7; }
+
+              .coin-card {
+                border-radius: 20px;
+                padding: 28px;
+                position: relative;
+                overflow: hidden;
+                transition: all 0.3s ease;
+              }
+              .coin-usdt { background: linear-gradient(135deg, #065f46, #047857); color: white; }
+              .coin-usdc { background: linear-gradient(135deg, #1e3a8a, #1d4ed8); color: white; }
+              .coin-card:hover { transform: translateY(-6px); }
+
+              .map-pin {
+                position: absolute;
+                transform: translate(-50%, -100%);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                z-index: 10;
+              }
+              .map-pin:hover { z-index: 20; }
+            `
+          }} />
+        );
+
+        /* ==========================================================================
+           2. NAVBAR COMPONENT
+           ========================================================================== */
+        function Navbar() {
+          const [scrolled, setScrolled] = useState(false);
+          const [mobileOpen, setMobileOpen] = useState(false);
+
+          useEffect(() => {
+            const onScroll = () => setScrolled(window.scrollY > 40);
+            window.addEventListener("scroll", onScroll);
+            return () => window.removeEventListener("scroll", onScroll);
+          }, []);
+
+          const nav = (href) => {
+            setMobileOpen(false);
+            const el = document.querySelector(href);
+            if (el) el.scrollIntoView({ behavior: "smooth" });
+          };
+
+          return (
+            <>
+              <nav style={{
+                position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+                transition: "all 0.4s ease",
+                background: scrolled ? "rgba(15,5,32,0.96)" : "transparent",
+                backdropFilter: scrolled ? "blur(24px)" : "none",
+                borderBottom: scrolled ? "1px solid rgba(167,139,250,0.1)" : "none",
+                boxShadow: scrolled ? "0 4px 30px rgba(124,58,237,0.15)" : "none",
+              }}>
+                <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 24px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 12,
+                      background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      boxShadow: "0 4px 16px rgba(124,58,237,0.4)",
+                    }}>
+                      <span style={{ fontFamily: "Space Grotesk", fontWeight: 900, fontSize: 15, color: "#fff" }}>B3C</span>
+                    </div>
+                    <div>
+                      <div style={{ fontFamily: "Space Grotesk", fontWeight: 900, fontSize: 20, color: "#fff" }}>B3C</div>
+                      <div style={{ fontSize: 9, color: "rgba(196,181,253,0.7)", fontWeight: 600, letterSpacing: "0.1em", marginTop: -2 }}>TOKENIZASYON</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 4, alignItems: "center" }} className="hidden lg:flex">
+                    {[
+                      { label: "Nedir?", href: "#nedir" },
+                      { label: "Varlıklar", href: "#varliklar" },
+                      { label: "Harita", href: "#harita" },
+                      { label: "Demo", href: "#demo" },
+                      { label: "SSS", href: "#sss" },
+                      { label: "İletişim", href: "#iletisim" },
+                    ].map((l) => (
+                      <button key={l.href} onClick={() => nav(l.href)} style={{
+                        background: "none", border: "none", color: "rgba(221,214,254,0.8)",
+                        fontSize: 14, fontWeight: 500, cursor: "pointer", padding: "8px 14px", borderRadius: 8,
+                        transition: "all 0.2s ease",
+                      }}
+                        onMouseEnter={(e) => { e.target.style.color = "#fff"; e.target.style.background = "rgba(167,139,250,0.1)"; }}
+                        onMouseLeave={(e) => { e.target.style.color = "rgba(221,214,254,0.8)"; e.target.style.background = "none"; }}
+                      >{l.label}</button>
+                    ))}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }} className="hidden lg:flex">
+                    <div className="badge badge-gold-dark">✦ DEMO</div>
+                    <button className="btn-primary" style={{ padding: "10px 20px", fontSize: 13 }} onClick={() => nav("#demo")}>
+                      Demo Başlat →
+                    </button>
+                  </div>
+
+                  <button className="lg:hidden" onClick={() => setMobileOpen(!mobileOpen)}
+                    style={{ background: "none", border: "none", color: "#fff", cursor: "pointer", padding: 8 }}>
+                    {mobileOpen ? <X size={24} /> : <Menu size={24} />}
+                  </button>
+                </div>
+              </nav>
+
+              {mobileOpen && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "rgba(15,5,32,0.98)", backdropFilter: "blur(24px)", paddingTop: 80 }}>
+                  <div style={{ padding: "16px 24px", display: "flex", flexDirection: "column", gap: 4 }}>
+                    {[
+                      { label: "Nedir?", href: "#nedir" },
+                      { label: "Varlıklar", href: "#varliklar" },
+                      { label: "Harita", href: "#harita" },
+                      { label: "Demo", href: "#demo" },
+                      { label: "SSS", href: "#sss" },
+                      { label: "İletişim", href: "#iletisim" },
+                    ].map((l) => (
+                      <button key={l.href} onClick={() => nav(l.href)} style={{
+                        background: "none", border: "none", borderBottom: "1px solid rgba(167,139,250,0.1)",
+                        color: "#e9d5ff", fontSize: 18, fontWeight: 500, cursor: "pointer",
+                        padding: "18px 0", textAlign: "left",
+                      }}>{l.label}</button>
+                    ))}
+                    <button className="btn-primary" style={{ marginTop: 16, width: "100%", justifyContent: "center" }} onClick={() => nav("#demo")}>
+                      Demo Başlat →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          );
+        }
