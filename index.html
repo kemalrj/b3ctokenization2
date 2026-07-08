@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B3C Tokenizasyon Platformu - Demo</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --violet: #7c3aed;
+            --violet-light: #8b5cf6;
+            --violet-dark: #5b21b6;
+            --purple: #a855f7;
+            --fuchsia: #c026d3;
+            --indigo: #4f46e5;
+            --bg-dark: #0f0520;
+            --bg-dark2: #1a0533;
+            --bg-purple: #2d1065;
+            --bg-light: #faf5ff;
+            --bg-light2: #f3e8ff;
+            --bg-white: #ffffff;
+            --text-dark: #1a0533;
+            --text-body: #4c1d95;
+            --text-muted-dark: #7c3aed;
+            --text-light: #f5f3ff;
+            --text-secondary-light: #ddd6fe;
+            --text-muted-light: #a78bfa;
+            --gold: #f59e0b;
+            --gold-light: #fbbf24;
+            --emerald: #10b981;
+            --cyan: #06b6d4;
+            --border-dark: rgba(167, 139, 250, 0.15);
+            --border-light: rgba(109, 40, 217, 0.12);
+            --border-accent: rgba(124, 58, 237, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            background: var(--bg-white);
+            color: var(--text-dark);
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Section Layouts */
+        .section-dark {
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark2) 100%);
+            color: var(--text-light);
+            padding: 100px 0;
+            position: relative;
+        }
+        .section-dark-purple {
+            background: linear-gradient(135deg, var(--bg-dark2) 0%, var(--bg-purple) 100%);
+            color: var(--text-light);
+            padding: 100px 0;
+        }
+        .section-light {
+            background: linear-gradient(180deg, #ffffff 0%, var(--bg-light) 100%);
+            color: var(--text-dark);
+            padding: 100px 0;
+        }
+        .section-light-purple {
+            background: linear-gradient(180deg, var(--bg-light) 0%, var(--bg-light2) 100%);
+            color: var(--text-dark);
+            padding: 100px 0;
+        }
+        .section-white {
+            background: #ffffff;
+            color: var(--text-dark);
+            padding: 100px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+        .section-header h2 {
+            font-size: clamp(28px, 4vw, 48px);
+            fontWeight: 900;
+            margin-bottom: 16px;
+        }
+        .section-header p {
+            font-size: 16px;
+            max-width: 540px;
+            margin: 0 auto;
+        }
+
+        /* Typography Gradients */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--violet-light) 0%, var(--purple) 50%, var(--fuchsia) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-dark {
+            background: linear-gradient(135deg, var(--violet-dark) 0%, var(--violet) 50%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Cards & Buttons */
+        .glass-card-dark {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-dark);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .glass-card-dark:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(167,139,250,0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(124,58,237,0.2);
+        }
+        .glass-card-light {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(109,40,217,0.06);
+            transition: all 0.3s ease;
+        }
+        .glass-card-light:hover {
+            background: rgba(255,255,255,0.98);
+            border-color: rgba(124,58,237,0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(124,58,237,0.12);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--violet), var(--violet-dark));
+            color: white;
+            border: none;
+            padding: 13px 28px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(124,58,237,0.5);
+            background: linear-gradient(135deg, var(--violet-light), var(--violet));
+        }
+        .btn-secondary-dark {
+            background: transparent;
+            color: var(--text-light);
+            border: 1px solid rgba(167,139,250,0.3);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary-dark:hover {
+            border-color: rgba(167,139,250,0.6);
+            background: rgba(124,58,237,0.15);
+            transform: translateY(-2px);
+        }
+        .btn-secondary-light {
+            background: transparent;
+            color: var(--violet);
+            border: 1.5px solid var(--violet);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-secondary-light:hover {
+            background: var(--violet);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-gold:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(245,158,11,0.4);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .badge-purple-dark { background: rgba(167,139,250,0.12); border: 1px solid rgba(167,139,250,0.3); color: #c4b5fd; }
+        .badge-purple-light { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25); color: var(--violet); }
+        .badge-gold-dark { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
+        .badge-gold-light { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); color: #d97706; }
+        .badge-green { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+        .badge-green-light { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #059669; }
+
+        /* Grids & Frameworks */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        
+        @media (max-width: 1024px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* Animations & FX */
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-16px); }
+        }
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .grid-bg-dark {
+            background-image: linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Custom forms & inputs */
+        .input-dark {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 10px;
+            color: var(--text-light);
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            outline: none;
+            width: 100%;
+        }
+        .input-dark:focus {
+            border-color: rgba(139,92,246,0.5);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+        }
+
+        /* FAQ accordion */
+        .faq-item {
+            border: 1px solid rgba(109,40,217,0.12);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+            margin-bottom: 12px;
+        }
+        .faq-item:hover {
+            border-color: rgba(124,58,237,0.25);
+            box-shadow: 0 4px 20px rgba(124,58,237,0.08);
+        }
+        .faq-item.active {
+            border-color: rgba(124,58,237,0.35);
+            box-shadow: 0 8px 32px rgba(124,58,237,0.12);
+        }
+        .faq-question {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .faq-answer {
+            padding: 0 24px 20px;
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.7;
+            display: none;
+        }
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        /* Coins & Charts CSS */
+        .coin-card {
+            border-radius: 20px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .coin-usdt { background: linear-gradient(135deg, #065f46, #047857); color: white; }
+        .coin-usdc { background: linear-gradient(135deg, #1e3a8a, #1d4ed8); color: white; }
+        .coin-card:hover { transform: translateY(-6px); }
+
+        /* Map Pinning */
+        .map-pin {
+            position: absolute;
+            transform: translate(-50%, -100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .map-pin:hover { z-index: 20; }
+
+        .divider-light {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(109,40,217,0.12), transparent);
+            margin: 60px 0;
+        }
+
+        /* Scroll Animation for Partners */
+        @keyframes scroll-x {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+        .scroll-container {
+            display: flex;
+            gap: 16px;
+            animation: scroll-x 25s linear infinite;
+            width: max-content;
+        }
+
+        /* Hide details for tabs */
+        .asset-card {
+            display: none;
+        }
+        .asset-card.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================
+         NAVBAR
+         ========================================== -->
+    <nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; transition: all 0.4s ease;" id="mainNavbar">
+        <div class="container" style="display: flex; alignItems: center; justify-content: space-between; padding: 16px 24px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #7c3aed, #a855f7); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(124,58,237,0.4);">
+                    <span style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 15px; color: #fff;">B3C</span>
+                </div>
+                <div>
+                    <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 20px; color: #fff;">B3C</div>
+                    <div style="font-size: 9px; color: rgba(196,181,253,0.7); font-weight: 600; letter-spacing: 0.1em; margin-top: -2px;">TOKENIZASYON</div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 4px; align-items: center;" id="desktopMenu">
+                <button onclick="scrollToSection('#nedir')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">Nedir?</button>
+                <button onclick="scrollToSection('#varliklar')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">Varlıklar</button>
+                <button onclick="scrollToSection('#harita')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">Harita</button>
+                <button onclick="scrollToSection('#demo')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">Demo</button>
+                <button onclick="scrollToSection('#sss')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">SSS</button>
+                <button onclick="scrollToSection('#iletisim')" style="background: none; border: none; color: rgba(221,214,254,0.8); font-size: 14px; font-weight: 500; cursor: pointer; padding: 8px 14px; border-radius: 8px; transition: all 0.2s;">İletişim</button>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="badge badge-gold-dark">✦ DEMO</div>
+                <button class="btn-primary" style="padding: 10px 20px; font-size: 13px;" onclick="scrollToSection('#demo')">
+                    Demo Başlat →
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==========================================
+         HERO
+         ========================================== -->
+    <section class="section-dark" style="min-height: 100vh; display: flex; align-items: center; overflow: hidden; padding-top: 120px;">
+        <div style="position: absolute; inset: 0; background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(124,58,237,0.25) 0%, transparent 70%); pointer-events: none;"></div>
+        <div class="grid-bg-dark" style="position: absolute; inset: 0; opacity: 0.5; pointer-events: none;"></div>
+        
+        <div class="container" style="position: relative; z-index: 1;">
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 64px; align-items: center;">
+                <div>
+                    <div style="display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap;">
+                        <div class="badge badge-purple-dark">
+                            <i data-lucide="shield" style="width:12px; height:12px;"></i> Blockchain Tabanlı
+                        </div>
+                        <div class="badge badge-gold-dark">✦ DEMO PLATFORM</div>
+                    </div>
+
+                    <h1 style="font-family: 'Space Grotesk'; font-size: clamp(36px, 5vw, 68px); font-weight: 900; line-height: 1.08; margin-bottom: 24px; color: #fff;">
+                        Varlıklarınızı <span class="gradient-text">Dijital Geleceğe</span> Taşıyın
+                    </h1>
+
+                    <p style="font-size: 18px; line-height: 1.75; color: #c4b5fd; margin-bottom: 36px; max-width: 500px;">
+                        B3C ile gayrimenkul, tahvil, emtia ve daha fazlasını blockchain üzerinde tokenize edin. Küçük yatırım tutarlarıyla büyük varlıklara ortak olun.
+                    </p>
+
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px;">
+                        <button class="btn-gold" onclick="scrollToSection('#demo')">
+                            <i data-lucide="play" style="width:16px; height:16px;"></i> Canlı Demo'yu Başlat
+                        </button>
+                        <button class="btn-secondary-dark" onclick="scrollToSection('#nedir')">
+                            B3C Nedir? <i data-lucide="arrow-right" style="width:15px; height:15px;"></i>
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="shield" style="width: 14px; height: 14px; color: #a855f7;"></i>
+                            <span style="font-size: 12px; color: rgba(196,181,253,0.7); font-weight: 500;">KYC/AML Uyumlu</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="zap" style="width: 14px; height: 14px; color: #a855f7;"></i>
+                            <span style="font-size: 12px; color: rgba(196,181,253,0.7); font-weight: 500;">5 Dak. Token Emisyonu</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="globe" style="width: 14px; height: 14px; color: #a855f7;"></i>
+                            <span style="font-size: 12px; color: rgba(196,181,253,0.7); font-weight: 500;">Çok Zincirli</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 480px; position: relative;">
+                    <!-- Central orb -->
+                    <div class="animate-float" style="position: relative; z-index: 2;">
+                        <div style="width: 220px; height: 220px; border-radius: 50%; background: conic-gradient(from 0deg, #7c3aed, #a855f7, #c026d3, #f59e0b, #7c3aed); padding: 4px; box-shadow: 0 0 80px rgba(124,58,237,0.5);">
+                            <div style="width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #1a0533, #2d1065); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;">
+                                <span style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 40px; background: linear-gradient(135deg, #c4b5fd, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">B3C</span>
+                                <span style="font-size: 11px; color: rgba(196,181,253,0.6); font-weight: 600;">TOKEN</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         STATS
+         ========================================== -->
+    <section class="section-white" style="padding: 80px 0;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;" class="stats-grid">
+                <div class="glass-card-light" style="padding: 32px 24px; text-align: center;">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(124,58,237,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        <i data-lucide="dollar-sign" style="color: #7c3aed;"></i>
+                    </div>
+                    <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 36px; color: #7c3aed; margin-bottom: 6px;">$2.84B</div>
+                    <div style="font-weight: 600; fontSize: 14px; color: #1a0533;">Toplam Kilitli Değer (TVL)</div>
+                </div>
+                <div class="glass-card-light" style="padding: 32px 24px; text-align: center;">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(168,85,247,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        <i data-lucide="layers" style="color: #a855f7;"></i>
+                    </div>
+                    <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 36px; color: #a855f7; margin-bottom: 6px;">12.450+</div>
+                    <div style="font-weight: 600; fontSize: 14px; color: #1a0533;">Tokenize Varlık</div>
+                </div>
+                <div class="glass-card-light" style="padding: 32px 24px; text-align: center;">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(192,38,211,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        <i data-lucide="users" style="color: #c026d3;"></i>
+                    </div>
+                    <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 36px; color: #c026d3; margin-bottom: 6px;">38.700+</div>
+                    <div style="font-weight: 600; fontSize: 14px; color: #1a0533;">Aktif Yatırımcı</div>
+                </div>
+                <div class="glass-card-light" style="padding: 32px 24px; text-align: center;">
+                    <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(245,158,11,0.12); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                        <i data-lucide="trending-up" style="color: #f59e0b;"></i>
+                    </div>
+                    <div style="font-family: 'Space Grotesk'; font-weight: 900; font-size: 36px; color: #f59e0b; margin-bottom: 6px;">%13.2</div>
+                    <div style="font-weight: 600; fontSize: 14px; color: #1a0533;">Ortalama Yıllık Getiri</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 60px; overflow: hidden;">
+                <div class="scroll-container">
+                    <!-- Repeated list for loop effect -->
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Ethereum</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Polygon</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Avalanche</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">BNB Chain</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Solana</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Ethereum</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Polygon</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Avalanche</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">BNB Chain</span>
+                    <span style="padding: 8px 20px; border-radius: 100px; border: 1px solid rgba(109,40,217,0.12); color: #7c3aed; font-weight:700;">Solana</span>
+                </div>
+            </div>
+            <div class="divider-light"></div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         ABOUT B3C
+         ========================================== -->
+    <section id="nedir" class="section-light-purple">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge badge-purple-light" style="margin-bottom: 16px;">Platform Hakkında</div>
+                <h2 style="color: #1a0533;">B3C Tokenizasyon Platformu <span class="gradient-text-dark">Nedir?</span></h2>
+                <p style="color: #6d28d9; font-size: 18px; max-width: 640px; line-height: 1.7;">
+                    B3C, gerçek dünya varlıklarını (RWA) blockchain teknolojisi üzerinde dijital tokenlara dönüştüren kurumsal düzeyde bir tokenizasyon altyapısıdır.
+                </p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-bottom: 80px;" class="grid-2">
+                <div>
+                    <h3 style="font-family: 'Space Grotesk'; font-weight: 800; font-size: 26px; color: #1a0533; margin-bottom: 20px;">
+                        Geleneksel Varlıkların Dijital Dönüşümü
+                    </h3>
+                    <p style="color: #4c1d95; font-size: 15px; line-height: 1.8; margin-bottom: 16px;">
+                        Geleneksel finans dünyasında bir gayrimenkule veya tahvile yatırım yapmak; yüksek giriş bedelleri, uzun bekleme süreleri ve düşük likidite nedeniyle çoğu yatırımcı için erişilmez olabilmektedir.
+                    </p>
+                    <p style="color: #4c1d95; font-size: 15px; line-height: 1.8; margin-bottom: 16px;">
+                        <strong style="color: #7c3aed;">B3C</strong>, bu sorunu blockchain teknolojisi ile çözüyor. Bir varlık dijital tokenlara bölünüyor. Her token, varlığın belirli bir payını temsil ediyor ve küçük yatırımcılar bu paya ortak olabiliyor.
+                    </p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i data-lucide="check-circle" style="color: #7c3aed; width:16px;"></i>
+                            <span style="font-size:14px; color: #4c1d95;">Minimum yatırım miktarı: $50 / 500₺</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i data-lucide="check-circle" style="color: #7c3aed; width:16px;"></i>
+                            <span style="font-size:14px; color: #4c1d95;">Anlık likidite — 7/24 alım-satım imkânı</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <i data-lucide="check-circle" style="color: #7c3aed; width:16px;"></i>
+                            <span style="font-size:14px; color: #4c1d95;">Otomatik getiri dağıtımı (kira, faiz, temettü)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="glass-card-light" style="padding: 20px 24px; display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(124,58,237,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="layers" style="color: #7c3aed;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 700; color: #1a0533;">Fraksiyonel Mülkiyet</h4>
+                            <p style="font-size: 13px; color: #6d28d9; line-height: 1.6; margin-top: 4px;">Büyük ölçekli varlıkları küçük paylara bölerek yatırım bariyerlerini ortadan kaldırın.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card-light" style="padding: 20px 24px; display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(16,185,129,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i data-lucide="dollar-sign" style="color: #10b981;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-weight: 700; color: #1a0533;">Stablecoin Entegrasyonu</h4>
+                            <p style="font-size: 13px; color: #6d28d9; line-height: 1.6; margin-top: 4px;">USDT ve USDC stablecoinleri ile küresel, hızlı ve düşük maliyetli ödemeler.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         STABLECOIN CHARTS (CHART.JS)
+         ========================================== -->
+    <section class="section-dark-purple">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge badge-green" style="margin-bottom: 16px;">Platform Grafikleri</div>
+                <h2 style="color: #fff;">B3C'ye Özel <span class="gradient-text">Analitik</span></h2>
+                <p style="color: #c4b5fd;">Platform TVL gelişimi, stablecoin dağılımları ve varlık verileri</p>
+            </div>
+
+            <!-- Stablecoin info cards -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 48px;" class="grid-2">
+                <div class="coin-usdt coin-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; opacity: 0.7; margin-bottom: 4px;">TETHER USD</div>
+                            <h3 style="font-size: 36px; font-weight: 900;">USDT</h3>
+                        </div>
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold;">₮</div>
+                    </div>
+                    <p style="font-size: 13px; opacity: 0.8; line-height: 1.6;">Platform işlemlerinin %69.7'si USDT üzerinden gerçekleştirilerek yüksek likidite ve kararlılık hedeflenir.</p>
+                </div>
+
+                <div class="coin-usdc coin-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                        <div>
+                            <div style="font-size: 11px; font-weight: 700; opacity: 0.7; margin-bottom: 4px;">USD COIN</div>
+                            <h3 style="font-size: 36px; font-weight: 900;">USDC</h3>
+                        </div>
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold;">©</div>
+                    </div>
+                    <p style="font-size: 13px; opacity: 0.8; line-height: 1.6;">Circle rezerv güvencesi altındaki USDC ödemeleri ile şeffaf, regüle ve güvenli saklama altyapısı.</p>
+                </div>
+            </div>
+
+            <!-- Chart Canvases -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;" class="grid-2">
+                <div class="glass-card-dark" style="padding: 28px; min-height: 320px;">
+                    <h4 style="color:#fff; margin-bottom: 20px;">Kilitli Varlık Değeri (TVL - Milyon $)</h4>
+                    <div style="height: 240px; position: relative;">
+                        <canvas id="tvlChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-card-dark" style="padding: 28px; min-height: 320px;">
+                    <h4 style="color:#fff; margin-bottom: 20px;">Varlık Kategori Dağılımı</h4>
+                    <div style="height: 240px; position: relative;">
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         TOKENIZED ASSETS (DYNAMIC TABS)
+         ========================================== -->
+    <section id="varliklar" class="section-light-purple">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge badge-purple-light" style="margin-bottom: 16px;">Aktif Portföy</div>
+                <h2 style="color: #1a0533;">Tokenize Edilmiş <span class="gradient-text-dark">Yatırım Varlıkları</span></h2>
+                <p style="color: #6d28d9;">Kategorilere tıklayarak varlıkları listeleyin ve yatırım yapın</p>
+            </div>
+
+            <!-- Tab Buttons -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 40px;" id="tabButtons">
+                <button onclick="switchCategory('gayrimenkul', this)" style="padding: 10px 20px; border-radius: 100px; border: 1.5px solid var(--violet); background: var(--violet); color: white; font-weight: 700; cursor: pointer;">🏢 Gayrimenkul</button>
+                <button onclick="switchCategory('tahvil', this)" style="padding: 10px 20px; border-radius: 100px; border: 1.5px solid rgba(109,40,217,0.15); background: white; color: #6d28d9; font-weight: 700; cursor: pointer;">📊 Tahvil & Menkul</button>
+                <button onclick="switchCategory('emtia', this)" style="padding: 10px 20px; border-radius: 100px; border: 1.5px solid rgba(109,40,217,0.15); background: white; color: #6d28d9; font-weight: 700; cursor: pointer;">⚖️ Emtia</button>
+            </div>
+
+            <!-- Assets Grid -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 40px;" id="assetsGrid">
+                <!-- Gayrimenkul 1 -->
+                <div class="glass-card-light asset-card active category-gayrimenkul" style="overflow: hidden; padding: 0;">
+                    <div style="position: relative; height: 180px;">
+                        <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=500&q=80" alt="Kadıköy" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 100px; background: rgba(16,185,129,0.2); color: #10b981; font-size: 10px; font-weight: 700;">Aktif</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: #1a0533; font-size: 16px;">Kadıköy Ofis Tower</h3>
+                        <p style="color: #6d28d9; font-size: 12px; margin-top: 4px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline;"></i> İstanbul, Türkiye</p>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+                            <span style="font-size:13px; color:#a78bfa;">Yıllık Getiri</span>
+                            <span style="font-weight: 700; color: #10b981;">%13.2</span>
+                        </div>
+                        <button onclick="openInvestModal('Kadıköy Ofis Tower', '%13.2', 'USDC 420')" class="btn-primary" style="width:100%; margin-top:16px; justify-content:center;">Yatırım Yap →</button>
+                    </div>
+                </div>
+
+                <!-- Gayrimenkul 2 -->
+                <div class="glass-card-light asset-card active category-gayrimenkul" style="overflow: hidden; padding: 0;">
+                    <div style="position: relative; height: 180px;">
+                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500&q=80" alt="Bosphorus" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 100px; background: rgba(16,185,129,0.2); color: #10b981; font-size: 10px; font-weight: 700;">Aktif</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: #1a0533; font-size: 16px;">Bosphorus Rezidans</h3>
+                        <p style="color: #6d28d9; font-size: 12px; margin-top: 4px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline;"></i> İstanbul, Türkiye</p>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+                            <span style="font-size:13px; color:#a78bfa;">Yıllık Getiri</span>
+                            <span style="font-weight: 700; color: #10b981;">%9.4</span>
+                        </div>
+                        <button onclick="openInvestModal('Bosphorus Rezidans', '%9.4', 'USDT 850')" class="btn-primary" style="width:100%; margin-top:16px; justify-content:center;">Yatırım Yap →</button>
+                    </div>
+                </div>
+
+                <!-- Tahvil 1 -->
+                <div class="glass-card-light asset-card category-tahvil" style="overflow: hidden; padding: 0;">
+                    <div style="position: relative; height: 180px;">
+                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=500&q=80" alt="Bist" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 100px; background: rgba(16,185,129,0.2); color: #10b981; font-size: 10px; font-weight: 700;">Aktif</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: #1a0533; font-size: 16px;">BIST Kurumsal Tahvil</h3>
+                        <p style="color: #6d28d9; font-size: 12px; margin-top: 4px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline;"></i> İstanbul, Türkiye</p>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+                            <span style="font-size:13px; color:#a78bfa;">Yıllık Getiri</span>
+                            <span style="font-weight: 700; color: #10b981;">%8.7</span>
+                        </div>
+                        <button onclick="openInvestModal('BIST Kurumsal Tahvil', '%8.7', 'USDC 100')" class="btn-primary" style="width:100%; margin-top:16px; justify-content:center;">Yatırım Yap →</button>
+                    </div>
+                </div>
+
+                <!-- Emtia 1 -->
+                <div class="glass-card-light asset-card category-emtia" style="overflow: hidden; padding: 0;">
+                    <div style="position: relative; height: 180px;">
+                        <img src="https://images.unsplash.com/photo-1610375461246-83df859d849d?w=500&q=80" alt="Gold" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; top: 10px; right: 10px; padding: 3px 10px; border-radius: 100px; background: rgba(16,185,129,0.2); color: #10b981; font-size: 10px; font-weight: 700;">Aktif</div>
+                    </div>
+                    <div style="padding: 20px;">
+                        <h3 style="color: #1a0533; font-size: 16px;">Fiziki Altın Fonu</h3>
+                        <p style="color: #6d28d9; font-size: 12px; margin-top: 4px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline;"></i> İstanbul Vaults</p>
+                        <div style="display: flex; justify-content: space-between; margin-top: 16px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 12px;">
+                            <span style="font-size:13px; color:#a78bfa;">Getiri Türü</span>
+                            <span style="font-weight: 700; color: #10b981;">Spot+%2</span>
+                        </div>
+                        <button onclick="openInvestModal('Fiziki Altın Fonu', 'Spot+%2', 'USDT 50')" class="btn-primary" style="width:100%; margin-top:16px; justify-content:center;">Yatırım Yap →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         WORLD MAP (INTERACTIVE PINNING)
+         ========================================== -->
+    <section id="harita" class="section-white">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge badge-purple-light" style="margin-bottom: 16px;"><i data-lucide="map-pin"></i> Harita</div>
+                <h2>Dünya Genelinde <span class="gradient-text-dark">Tokenize Varlıklar</span></h2>
+                <p>Pin'lere tıklayarak konumlara göre dağılmış küresel RWA varlıklarını inceleyin</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;" class="grid-2">
+                <div class="glass-card-light" style="position: relative; overflow: hidden; padding: 0;">
+                    <div style="position: relative; padding-bottom: 50%; background: linear-gradient(135deg, #f3e8ff, #faf5ff);">
+                        <!-- SVG World outline -->
+                        <svg viewBox="0 0 800 400" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.25;">
+                            <!-- North America -->
+                            <path d="M50,80 C90,60 140,50 180,80 C200,90 230,110 240,140 C210,160 180,180 150,170 C120,180 100,150 90,140 Z" fill="#7c3aed" />
+                            <!-- South America -->
+                            <path d="M170,180 C200,200 230,220 250,250 C260,280 230,340 200,370 C190,340 180,270 170,220 Z" fill="#7c3aed" />
+                            <!-- Europe & Asia -->
+                            <path d="M380,80 C440,70 500,60 620,80 C690,95 720,120 740,150 C700,170 650,210 600,220 C540,240 500,210 450,220 Z" fill="#7c3aed" />
+                            <!-- Africa -->
+                            <path d="M380,180 C430,170 470,190 490,220 C490,260 460,300 430,330 C410,300 390,260 370,220 Z" fill="#7c3aed" />
+                            <!-- Australia -->
+                            <path d="M680,270 C720,260 750,270 760,290 C750,320 710,330 680,310 Z" fill="#7c3aed" />
+                        </svg>
+
+                        <!-- Pins -->
+                        <div class="map-pin" style="left: 20%; top: 32%;" onclick="showMapDetails('Manhattan Plaza REIT', 'New York, ABD', '$45M', '%11.2')">
+                            <div style="width: 14px; height: 14px; border-radius: 50%; background: #7c3aed; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <div class="map-pin" style="left: 48%; top: 25%;" onclick="showMapDetails('London Financial Hub', 'Londra, İngiltere', '£32M', '%10.5')">
+                            <div style="width: 14px; height: 14px; border-radius: 50%; background: #7c3aed; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <div class="map-pin" style="left: 53%; top: 32%;" onclick="showMapDetails('Bosphorus REIT', 'İstanbul, Türkiye', '₺120M', '%13.2')">
+                            <div style="width: 14px; height: 14px; border-radius: 50%; background: #7c3aed; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+                        </div>
+                        <div class="map-pin" style="left: 88%; top: 32%;" onclick="showMapDetails('Shibuya Tech Center', 'Tokyo, Japonya', '¥4.5B', '%8.9')">
+                            <div style="width: 14px; height: 14px; border-radius: 50%; background: #7c3aed; border: 2px solid white; box-shadow: 0 4px 12px rgba(0,0,0,0.2);"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info sidebar -->
+                <div class="glass-card-light" style="padding: 24px;" id="mapSidebar">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <i data-lucide="map-pin" style="width: 32px; height: 32px; color: #c4b5fd; margin-bottom: 8px;"></i>
+                        <p style="font-size:13px; color: #6d28d9;">Varlık detaylarını görüntülemek için haritadaki pinlerden birine tıklayın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         LIVE DEMO SIMULATOR
+         ========================================== -->
+    <section id="demo" class="section-light">
+        <div class="container" style="max-width: 720px;">
+            <div class="section-header">
+                <div class="badge badge-gold-light" style="margin-bottom: 16px;">Simülatör</div>
+                <h2>Tokenizasyonu <span class="gradient-text-dark">Deneyin</span></h2>
+            </div>
+
+            <div class="glass-card-light" style="padding: 32px;" id="demoSimulator">
+                <!-- Step 0 -->
+                <div id="demoStep0">
+                    <h3 style="margin-bottom:12px;">Adım 1: Varlık Türü Seçin</h3>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:24px;">
+                        <button onclick="selectDemoAsset('Gayrimenkul', '₺')" style="padding:16px; border:2px solid var(--violet); border-radius:12px; background:rgba(124,58,237,0.05); font-weight:700; cursor:pointer;">🏢 Gayrimenkul</button>
+                        <button onclick="selectDemoAsset('Tahvil & Menkul Kıymet', '$')" style="padding:16px; border:2px solid rgba(0,0,0,0.05); border-radius:12px; background:#fff; font-weight:700; cursor:pointer;">📊 Tahvil & Menkul</button>
+                    </div>
+                    <button class="btn-primary" onclick="nextDemoStep(1)">Devam Et →</button>
+                </div>
+
+                <!-- Step 1 -->
+                <div id="demoStep1" style="display:none;">
+                    <h3 style="margin-bottom:16px;">Adım 2: Gerekli Kanıtlayıcı Belgeler</h3>
+                    <p style="font-size:13px; color:#6b7280; margin-bottom:16px;">Demo gereği aşağıdaki belgeleri yüklendi olarak işaretleyin.</p>
+                    
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.05);">
+                        <span>Tapu Belgesi / Mülkiyet Belgesi</span>
+                        <button class="btn-secondary-light" style="padding:6px 12px; font-size:12px;" onclick="uploadDoc(this)">Yükle</button>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(0,0,0,0.05); margin-bottom:24px;">
+                        <span>Ekspertiz Raporu</span>
+                        <button class="btn-secondary-light" style="padding:6px 12px; font-size:12px;" onclick="uploadDoc(this)">Yükle</button>
+                    </div>
+
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn-secondary-light" onclick="nextDemoStep(0)">← Geri</button>
+                        <button class="btn-primary" id="docNextBtn" disabled style="opacity:0.5;" onclick="nextDemoStep(2)">Devam Et →</button>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="demoStep2" style="display:none;">
+                    <h3 style="margin-bottom:16px;">Adım 3: Değer ve Getiri Ayarları</h3>
+                    <div style="margin-bottom:20px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                            <span>Varlık Değeri</span>
+                            <span id="demoValLabel">₺5.000.000</span>
+                        </div>
+                        <input type="range" min="100000" max="50000000" value="5000000" style="width:100%;" oninput="updateDemoVal(this.value)">
+                    </div>
+
+                    <div style="display:flex; gap:10px; margin-top:24px;">
+                        <button class="btn-secondary-light" onclick="nextDemoStep(1)">← Geri</button>
+                        <button class="btn-primary" onclick="simulateTokenization()">Tokenleri Üret</button>
+                    </div>
+                </div>
+
+                <!-- Step 3 (Success) -->
+                <div id="demoStep3" style="display:none; text-align:center;">
+                    <div style="width: 64px; height: 64px; border-radius: 50%; background:#10b981; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                        <i data-lucide="check" style="color:white; width:32px; height:32px;"></i>
+                    </div>
+                    <h3 style="font-size:24px; font-weight:900; margin-bottom:8px;">Başvuru İncelemede! 🎉</h3>
+                    <p style="color:#6b7280; margin-bottom:24px;">Evraklarınız başarıyla yüklendi. Platform yöneticisi ve regülatör onayından sonra tokenizasyon tamamlanacaktır.</p>
+                    <button class="btn-primary" onclick="resetDemo()">Yeni Simülasyon</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         FAQ (SSS)
+         ========================================== -->
+    <section id="sss" class="section-light-purple">
+        <div class="container" style="max-width: 800px;">
+            <div class="section-header">
+                <div class="badge badge-purple-light" style="margin-bottom:16px;">SSS</div>
+                <h2>Sıkça Sorulan Sorular</h2>
+            </div>
+
+            <div class="faq-item active">
+                <div class="faq-question">
+                    <span>B3C platformu nedir?</span>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="faq-answer" style="display:block;">
+                    B3C, gayrimenkul ve emtia gibi geleneksel yatırım varlıklarını blockchain üzerinde küçük paylara bölerek herkesin yatırım yapmasını sağlayan güvenli bir tokenizasyon altyapısıdır.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>İşlemler hangi para birimi ile yapılıyor?</span>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Platform üzerindeki tüm yatırım ve getiri işlemleri sabit dijital para birimleri (stablecoin) olan USDT ve USDC kabul edilerek anlık ve şeffaf biçimde yürütülür.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Yatırımlar ne zaman geri çekilebilir?</span>
+                    <i data-lucide="chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    B3C likidite havuzları ve akıllı kontrat pazar yerleri sayesinde sahip olduğunuz varlık tokenlarını dilediğiniz zaman platform içi takas protokolleri ile stablecoin'e dönüştürebilirsiniz.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         CONTACT & FOOTER
+         ========================================== -->
+    <section id="iletisim" class="section-dark-purple">
+        <div class="container" style="max-width: 640px;">
+            <div class="section-header">
+                <h2>Başvuru ve İletişim</h2>
+            </div>
+            
+            <div class="glass-card-dark" style="padding:32px;">
+                <form id="contactForm" onsubmit="handleContactSubmit(event)">
+                    <div style="margin-bottom:16px;">
+                        <label style="color:#a78bfa; display:block; margin-bottom:6px; font-size:12px;">AD SOYAD *</label>
+                        <input type="text" class="input-dark" required placeholder="Ahmet Yılmaz">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="color:#a78bfa; display:block; margin-bottom:6px; font-size:12px;">E-POSTA *</label>
+                        <input type="email" class="input-dark" required placeholder="ahmet@sirket.com">
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="color:#a78bfa; display:block; margin-bottom:6px; font-size:12px;">MESAJINIZ *</label>
+                        <textarea class="input-dark" rows="4" required placeholder="Tokenize etmek istediğiniz varlık hakkında bilgi verin..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="width:100%; justify-content:center;">Başvuruyu Gönder</button>
+                </form>
+                <div id="contactSuccess" style="display:none; text-align:center; padding: 20px 0;">
+                    <h3 style="color:white; margin-bottom:8px;">Başvurunuz Alındı!</h3>
+                    <p style="color:#c4b5fd;">Uzman ekibimiz 24 saat içinde sizinle iletişime geçecektir.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="background: #0f0520; color: #c4b5fd; border-top: 1px solid rgba(124,58,237,0.15); padding: 40px 0;">
+        <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+                <span style="font-weight:800; color:#fff;">B3C TOKENIZASYON A.Ş.</span>
+                <p style="font-size:12px; margin-top:4px; color:#7c3aed;">© 2026 Tüm hakları saklıdır. Yalnızca Demo Amaçlıdır.</p>
+            </div>
+            <div>
+                <span style="font-size:12px;">info@b3c.io</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==========================================
+         INVEST MODAL
+         ========================================== -->
+    <div id="investModal" style="position:fixed; inset:0; z-index:1000; background:rgba(15,5,32,0.85); backdrop-filter:blur(12px); display:none; align-items:center; justify-content:center; padding:20px;">
+        <div style="background:white; border-radius:24px; width:100%; max-width:540px; overflow:hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="position:relative; height:140px; background:linear-gradient(135deg, #7c3aed, #a855f7); padding:24px; color:white; display:flex; flex-direction:column; justify-content:flex-end;">
+                <button onclick="closeInvestModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.2); border:none; border-radius:50%; width:32px; height:32px; color:white; cursor:pointer; font-weight:bold;">X</button>
+                <h3 id="modalTitle" style="font-size:22px; font-weight:900;">Varlık Adı</h3>
+                <p id="modalYield" style="font-size:14px; opacity:0.9;"></p>
+            </div>
+            
+            <div style="padding:24px;" id="modalBody">
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:8px; font-weight:700;">Yatırılacak Tutar (USD/USDT)</label>
+                    <input type="number" id="investAmount" value="1000" style="width:100%; padding:12px; border:1.5px solid rgba(109,40,217,0.15); border-radius:10px; font-size:16px; outline:none;" oninput="calculateTokens(this.value)">
+                </div>
+
+                <div style="background:rgba(124,58,237,0.05); padding:16px; border-radius:12px; border:1px solid rgba(109,40,217,0.08); margin-bottom:24px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span>Alınacak Token Payı:</span>
+                        <span id="modalTokens" style="font-weight:700; color:#7c3aed;">10 Token</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>Seçilen Stabilcoin:</span>
+                        <span style="font-weight:700; color:#10b981;">USDT</span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="width:100%; justify-content:center;" onclick="confirmDemoInvest()">Yatırımı Onayla ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         JAVASCRIPT LOGICS
+         ========================================== -->
+    <script>
+        // Smooth scrolling helper
+        function scrollToSection(selector) {
+            const el = document.querySelector(selector);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Navbar Styling on Scroll
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNavbar');
+            if (window.scrollY > 40) {
+                nav.style.background = 'rgba(15,5,32,0.96)';
+                nav.style.backdropFilter = 'blur(24px)';
+                nav.style.boxShadow = '0 4px 30px rgba(124,58,237,0.15)';
+            } else {
+                nav.style.background = 'transparent';
+                nav.style.backdropFilter = 'none';
+                nav.style.boxShadow = 'none';
+            }
+        });
+
+        // Tab Categories switching
+        function switchCategory(cat, btn) {
+            // Remove active style from all tab buttons
+            const buttons = document.querySelectorAll('#tabButtons button');
+            buttons.forEach(b => {
+                b.style.background = 'white';
+                b.style.color = '#6d28d9';
+                b.style.borderColor = 'rgba(109,40,217,0.15)';
+            });
+
+            // Set active style to clicked button
+            btn.style.background = 'var(--violet)';
+            btn.style.color = 'white';
+            btn.style.borderColor = 'var(--violet)';
+
+            // Hide/Show assets
+            const cards = document.querySelectorAll('.asset-card');
+            cards.forEach(c => {
+                if (c.classList.contains(`category-${cat}`)) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
+                }
+            });
+        }
+
+        // Map Side panel details
+        function showMapDetails(label, location, value, yieldRate) {
+            const sidebar = document.getElementById('mapSidebar');
+            sidebar.innerHTML = `
+                <h3 style="font-family: 'Space Grotesk'; font-weight: 800; font-size: 18px; color: #1a0533;">${label}</h3>
+                <p style="font-size: 13px; color: #6d28d9; margin: 6px 0 16px;"><i data-lucide="map-pin" style="width:12px; height:12px; display:inline;"></i> ${location}</p>
+                
+                <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.05)">
+                    <span style="font-size:13px; color:#a78bfa;">Toplam Varlık Değeri</span>
+                    <span style="font-weight:700; color:#7c3aed;">${value}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.05)">
+                    <span style="font-size:13px; color:#a78bfa;">Yıllık Ortalama Getiri</span>
+                    <span style="font-weight:700; color:#10b981;">${yieldRate}</span>
+                </div>
+                
+                <button onclick="openInvestModal('${label}', '${yieldRate}', 'USDT 100')" class="btn-primary" style="width:100%; margin-top:20px; justify-content:center;">Hemen Yatırım Yap</button>
+            `;
+            lucide.createIcons();
+        }
+
+        // SSS Accordion logic
+        const faqs = document.querySelectorAll('.faq-item');
+        faqs.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                faqs.forEach(f => {
+                    f.classList.remove('active');
+                    f.querySelector('.faq-answer').style.display = 'none';
+                });
+                if (!isActive) {
+                    item.classList.add('active');
+                    item.querySelector('.faq-answer').style.display = 'block';
+                }
+            });
+        });
+
+        // Contact submit simulator
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            document.getElementById('contactForm').style.display = 'none';
+            document.getElementById('contactSuccess').style.display = 'block';
+        }
+
+        // Live Demo Simulation Logics
+        let demoCurrency = '₺';
+        let demoDocUploadedCount = 0;
+
+        function selectDemoAsset(type, curr) {
+            demoCurrency = curr;
+            document.querySelectorAll('#demoStep0 button').forEach(b => {
+                b.style.borderColor = 'rgba(0,0,0,0.05)';
+                b.style.background = '#fff';
+            });
+            event.target.style.borderColor = 'var(--violet)';
+            event.target.style.background = 'rgba(124,58,237,0.05)';
+        }
+
+        function uploadDoc(btn) {
+            btn.innerHTML = 'Yüklendi ✓';
+            btn.disabled = true;
+            btn.style.background = '#10b981';
+            btn.style.color = '#white';
+            btn.style.borderColor = '#10b981';
+            
+            demoDocUploadedCount++;
+            if (demoDocUploadedCount >= 2) {
+                const nextBtn = document.getElementById('docNextBtn');
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = '1';
+            }
+        }
+
+        // Simülasyon adımlarını yönetme
+        function nextDemoStep(stepNum) {
+            document.getElementById('demoStep0').style.display = 'none';
+            document.getElementById('demoStep1').style.display = 'none';
+            document.getElementById('demoStep2').style.display = 'none';
+            document.getElementById('demoStep3').style.display = 'none';
+
+            document.getElementById(`demoStep${stepNum}`).style.display = 'block';
+        }
+
+        function updateDemoVal(val) {
+            document.getElementById('demoValLabel').innerHTML = demoCurrency + parseInt(val).toLocaleString('tr-TR');
+        }
+
+        function simulateTokenization() {
+            nextDemoStep(3);
+            lucide.createIcons();
+        }
+
+        function resetDemo() {
+            demoDocUploadedCount = 0;
+            const nextBtn = document.getElementById('docNextBtn');
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+            
+            document.querySelectorAll('#demoStep1 button').forEach(btn => {
+                if (btn.id !== 'docNextBtn') {
+                    btn.innerHTML = 'Yükle';
+                    btn.disabled = false;
+                    btn.style.background = 'transparent';
+                    btn.style.color = 'var(--violet)';
+                    btn.style.borderColor = 'var(--violet)';
+                }
+            });
+
+            nextDemoStep(0);
+        }
+
+        // Invest Modal Operations
+        let currentTokenPrice = 100;
+        function openInvestModal(name, yieldRate, priceString) {
+            const modal = document.getElementById('investModal');
+            modal.style.display = 'flex';
+            
+            document.getElementById('modalTitle').innerHTML = name;
+            document.getElementById('modalYield').innerHTML = 'Beklenen Getiri: ' + yieldRate;
+            
+            currentTokenPrice = parseInt(priceString.replace(/[^0-9.]/g, '')) || 100;
+            calculateTokens(1000);
+        }
+
+        function closeInvestModal() {
+            document.getElementById('investModal').style.display = 'none';
+        }
+
+        function calculateTokens(usdAmount) {
+            const tokens = parseFloat(usdAmount) / currentTokenPrice;
+            document.getElementById('modalTokens').innerHTML = tokens.toFixed(2) + ' Token';
+        }
+
+        function confirmDemoInvest() {
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="text-align:center; padding: 20px 0;">
+                    <div style="width: 52px; height: 52px; border-radius: 50%; background:#10b981; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+                        <i data-lucide="check" style="color:white;"></i>
+                    </div>
+                    <h3 style="color:#1a0533; margin-bottom:8px;">Yatırım Başarılı!</h3>
+                    <p style="font-size:13px; color:#6b7280; margin-bottom:20px;">Bakiyeniz akıllı kontrata başarıyla kilitlendi. Cüzdanınıza token emisyonu yapıldı.</p>
+                    <button class="btn-primary" onclick="closeInvestModal(); location.reload();" style="width:100%; justify-content:center;">Kapat</button>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // Initialize Lucide Icons & Charts
+        window.addEventListener('load', () => {
+            lucide.createIcons();
+            
+            // Build TVL line graph
+            const ctxTvl = document.getElementById('tvlChart').getContext('2d');
+            new Chart(ctxTvl, {
+                type: 'line',
+                data: {
+                    labels: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu"],
+                    datasets: [
+                        {
+                            label: 'USDT Hacmi (M$)',
+                            data: [420, 580, 720, 890, 1100, 1380, 1720, 1980],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'USDC Hacmi (M$)',
+                            data: [180, 240, 310, 400, 490, 610, 760, 860],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#a78bfa' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#a78bfa' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#c4b5fd' } }
+                    }
+                }
+            });
+
+            // Build Allocation donut chart
+            const ctxAlloc = document.getElementById('allocationChart').getContext('2d');
+            new Chart(ctxAlloc, {
+                type: 'doughnut',
+                data: {
+                    labels: ["Gayrimenkul", "Tahvil", "Emtia", "Kredi"],
+                    datasets: [{
+                        data: [38, 22, 16, 24],
+                        backgroundColor: ["#7c3aed", "#a855f7", "#f59e0b", "#10b981"],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#c4b5fd' } }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
